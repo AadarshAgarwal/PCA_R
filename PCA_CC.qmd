@@ -1,0 +1,189 @@
+---
+title: "PCA and Analysis of Indian Menu"
+author: "Bavna Rajan & Aadarsh Agarwal"
+date: "`r Sys.Date()`"
+format: html
+---
+
+## 
+
+```{r}
+
+# # Load necessary libraries
+# library(dplyr)
+# library(tidyr)
+# library(readr)
+# install.packages("janitor")
+# library(janitor)
+# dat <- read_csv('C:\\Users\\bavna\\Downloads\\archive\\India_Menu.csv') |> 
+#   janitor::clean_names()
+# glimpse(dat, 100)
+# ggplot(dat, aes(x = menu_category, y = total_sugars_g)) +
+#   geom_violin(trim = FALSE, fill = "lightblue", color = "black") +  # Violin plot
+#   geom_dotplot(binaxis = 'y', stackdir = 'center', dotsize = 0.5) + # Dot plot overlay
+#   theme_minimal() +
+#   labs(title = "Dot-Violin Plot", x = "Category", y = "Value")
+
+```
+
+```{r}
+# low_sugar = dat |>
+#   filter(total_sugars_g == min(total_sugars_g, na.r=TRUE))
+# low_fat = dat |>
+#   filter(total_fat_g==min(total_fat_g,na.rm=TRUE))
+# lowest_values <- bind_rows(low_sugar, low_fat)  |>
+#   distinct(menu_items, .keep_all = TRUE)
+# ggplot(lowest_values, aes(x = reorder(menu_items,total_sugars_g),
+#                          y = total_sugars_g, fill = menu_category)) +
+#   geom_bar(stat = "identity", show.legend = FALSE) +
+#   coord_flip() +
+#   labs(title = "Food Items with the Lowest Sugar Content",
+#        x = "Food Item",
+#        y = "Sugars (g)") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# 
+# ggplot(lowest_values, aes(x = reorder(menu_items, total_fat_g),
+#                          y = total_fat_g, fill = menu_category)) +
+#   geom_bar(stat = "identity", show.legend = FALSE) +
+#   coord_flip() +
+#   labs(title = "Food Items with the Lowest Fat Content",
+#        x = "Food Item",
+#        y = "Fat (g)") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Define the selected categories
+selected_categories <- c("Beverages Menu", "Breakfast Menu", "Regular Menu", "Gourmet Menu")
+
+# Filter data to include only selected categories and remove any rows with NA values in key columns
+dat_cleaned <- dat |> 
+  filter(!is.na(total_sugars_g),                     # Remove rows with NA in total_sugars_g
+         !is.na(menu_category),                      # Remove rows with NA in menu_category
+         !is.na(menu_items),                         # Remove rows with NA in menu_items
+         menu_category %in% selected_categories)     # Filter for selected categories
+
+# Plot with facet wrap for selected categories
+ggplot(dat_cleaned, aes(x = reorder(menu_items, total_sugars_g), 
+                        y = total_sugars_g, fill = menu_category)) +
+  geom_bar(stat = 'identity', show.legend = FALSE) +  # Hide legend since each facet represents a menu category
+  coord_flip() +
+  labs(title = "Total Sugar Content in Selected Food Categories",
+       x = "Food Item",
+       y = "Sugars (g)") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 6),            # Smaller font for y-axis labels
+        axis.text.x = element_text(size = 8),            # Adjust x-axis label size
+        plot.title = element_text(hjust = 0.5)) +        # Center align title
+  facet_wrap(~menu_category, scales = "free")            # Facet by menu category with free scales
+
+
+
+
+```
+
+From this graph, it is visible that Large Fanta Orange, Hot cake with maple syrup, chicken cheese lava burger and vanilla chocolate muffin have the largest sugar content in each of the menus. This makes them very unhealthy but we will check their fat content and plot that to find exactly how unhealthy they are compared to the other food items in their respective menus and with each other. In these menus, Coke Zero can, Americano(S), Cheesy Veg Nuggets and L1 Coffee have the least amount of sugar content in them. This makes them so much more healthier as compared to the other food items in this list.
+
+```{r}
+# Define the selected categories
+selected_categories <- c("Beverages Menu", "Breakfast Menu", "Regular Menu", "Gourmet Menu")
+
+# Filter data for selected categories and remove rows with NAs in key columns
+dat_cleaned <- dat |> 
+  filter(!is.na(total_sugars_g), !is.na(total_fat_g),         # Ensure no NA values in sugars or fat
+         !is.na(menu_category), !is.na(menu_items),
+         menu_category %in% selected_categories)
+
+# Find items with the highest and lowest sugar content in each menu category
+sugar_extremes <- dat_cleaned  |> 
+  group_by(menu_category) |> 
+  filter(total_sugars_g == max(total_sugars_g) | total_sugars_g == min(total_sugars_g)) |> 
+  ungroup()
+
+# Display the result to check
+ggplot(sugar_extremes, aes(x = reorder(menu_items, total_fat_g), 
+                           y = total_fat_g, fill = menu_category)) +
+  geom_bar(stat = 'identity', show.legend = TRUE) +
+  geom_text(aes(label = paste0("Sugar: ", total_sugars_g, "g")), 
+            hjust = -0.1, size = 3, color = "black") +  # Label with sugar content
+  coord_flip() +
+  labs(title = "Fat Content in Food Items with Extreme Sugar Content by Category",
+       x = "Food Item",
+       y = "Fat (g)") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+In this graph, we have plotted the graph for the fat content in all of those food items that had a high and low sugar intake to compare if they are really unhealthy. This graph has just proved that those with a high sugar and fat content are Chicken Cheese Lava Burger and Vanilla Chocolate Chip Muffins. This makes them the most unhealthy. But those with very low sugar content have little to none fat.
+
+We are performing this basic data analysis to extract information from the dataset and really understand the relationship between each variable and realise what information each feature represents. Now, since this is a multivariate dataset, we will perform one of the most powerful methods to draw important conclusions from the dataset. This helps us to reduce the dimensions and gather information with just a few plots.
+
+```{r}
+pca_result <- prcomp(dat_cleaned_PCA, scale. = TRUE)
+
+summary(pca_result)
+
+plot(pca_result$x[, 1:2], pch = 19, xlab = "PC1", ylab = "PC2", main = "PCA")
+```
+
+```{r}
+library(FactoMineR)
+
+pca_result_fm <- PCA(dat_cleaned_PCA, scale.unit = TRUE, ncp = 5, graph = FALSE)
+
+summary(pca_result_fm)
+
+plot(pca_result_fm, choix = "ind", axes = c(1, 2))
+```
+
+```{r}
+pca_result_pc <- princomp(dat_cleaned_PCA, cor = TRUE)
+
+summary(pca_result_pc)
+
+biplot(pca_result_pc)
+```
+
+```{r}
+library(caret)
+
+pca_result_caret <- preProcess(dat_cleaned_PCA, method = 'pca', pcaComp = 2)
+
+pca_result_caret
+
+transformed_data <- predict(pca_result_caret, dat_cleaned_PCA)
+
+plot(transformed_data[, 1:2], pch = 19,
+     xlab = "PC1", ylab = "PC2", main = "PCA using caret")
+```
+
+```{r}
+
+# Load necessary package
+library(ggplot2)
+
+# Assuming you have a dataset 'dataset' with only numerical columns
+# Perform PCA
+pca_result <- prcomp(dat_cleaned_PCA, scale. = TRUE)
+
+# Get the proportion of variance explained
+explained_variance <- pca_result$sdev^2 / sum(pca_result$sdev^2)
+cumulative_variance <- cumsum(explained_variance)
+
+# Create a dataframe for plotting
+variance_df <- data.frame(
+  PC = factor(paste0("PC", 1:length(explained_variance)), levels = paste0("PC", 1:length(explained_variance))),
+  Variance = explained_variance,
+  CumulativeVariance = cumulative_variance
+)
+
+# Plotting the variance explained by each component
+ggplot(variance_df, aes(x = PC, y = Variance)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_line(aes(y = CumulativeVariance), color = "red", group = 1) +
+  geom_point(aes(y = CumulativeVariance), color = "red") +
+  labs(title = "Scree Plot", x = "Principal Component", y = "Variance Explained") +
+  theme_minimal()
+```
