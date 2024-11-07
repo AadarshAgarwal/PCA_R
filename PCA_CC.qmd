@@ -9,49 +9,20 @@ format: html
 
 ```{r}
 
-# # Load necessary libraries
-# library(dplyr)
-# library(tidyr)
-# library(readr)
-# install.packages("janitor")
-# library(janitor)
-# dat <- read_csv('C:\\Users\\bavna\\Downloads\\archive\\India_Menu.csv') |> 
-#   janitor::clean_names()
-# glimpse(dat, 100)
-# ggplot(dat, aes(x = menu_category, y = total_sugars_g)) +
-#   geom_violin(trim = FALSE, fill = "lightblue", color = "black") +  # Violin plot
-#   geom_dotplot(binaxis = 'y', stackdir = 'center', dotsize = 0.5) + # Dot plot overlay
-#   theme_minimal() +
-#   labs(title = "Dot-Violin Plot", x = "Category", y = "Value")
+ # Load necessary libraries
+ library(dplyr)
+ library(tidyr)
+ library(readr)
+ install.packages("janitor")
+ library(janitor)
+ dat <- read_csv('C:\\Users\\bavna\\Downloads\\archive\\India_Menu.csv') |> 
+   janitor::clean_names()
+ glimpse(dat, 100)
+
 
 ```
 
 ```{r}
-# low_sugar = dat |>
-#   filter(total_sugars_g == min(total_sugars_g, na.r=TRUE))
-# low_fat = dat |>
-#   filter(total_fat_g==min(total_fat_g,na.rm=TRUE))
-# lowest_values <- bind_rows(low_sugar, low_fat)  |>
-#   distinct(menu_items, .keep_all = TRUE)
-# ggplot(lowest_values, aes(x = reorder(menu_items,total_sugars_g),
-#                          y = total_sugars_g, fill = menu_category)) +
-#   geom_bar(stat = "identity", show.legend = FALSE) +
-#   coord_flip() +
-#   labs(title = "Food Items with the Lowest Sugar Content",
-#        x = "Food Item",
-#        y = "Sugars (g)") +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# 
-# ggplot(lowest_values, aes(x = reorder(menu_items, total_fat_g),
-#                          y = total_fat_g, fill = menu_category)) +
-#   geom_bar(stat = "identity", show.legend = FALSE) +
-#   coord_flip() +
-#   labs(title = "Food Items with the Lowest Fat Content",
-#        x = "Food Item",
-#        y = "Fat (g)") +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Define the selected categories
 selected_categories <- c("Beverages Menu", "Breakfast Menu", "Regular Menu", "Gourmet Menu")
@@ -76,9 +47,6 @@ ggplot(dat_cleaned, aes(x = reorder(menu_items, total_sugars_g),
         axis.text.x = element_text(size = 8),            # Adjust x-axis label size
         plot.title = element_text(hjust = 0.5)) +        # Center align title
   facet_wrap(~menu_category, scales = "free")            # Facet by menu category with free scales
-
-
-
 
 ```
 
